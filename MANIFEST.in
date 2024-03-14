@@ -1,0 +1,4 @@
+include requirements.txt
+exclude tests/*
+recursive-include cascadium/templates *.html
+
