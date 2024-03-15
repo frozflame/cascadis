@@ -9,13 +9,13 @@ import os.path
 import flask
 from flask import Blueprint, request, Response
 
-from cascadium.auth import set_protection_level, LoginInterface, login_required
-from cascadium.environ import GlobalInterface
-from cascadium.solutions import register_http_upload
-from cascadium.viewutils import Proxy, fmt_content_disposition_attachment
+from cascadis.auth import set_protection_level, LoginInterface, login_required
+from cascadis.environ import GlobalInterface
+from cascadis.solutions import register_http_upload
+from cascadis.viewutils import Proxy, fmt_content_disposition_attachment
 
 gi = GlobalInterface()
-bp = Blueprint('cas', __name__)
+bp = Blueprint("cas", __name__)
 _logger = logging.getLogger(__name__)
 
 
@@ -28,22 +28,25 @@ def _read_uploading_file_in_chunks(chunksize=16384):
 @bp.route("/")
 @set_protection_level(1)
 def api_index():
-    import cascadium
+    import cascadis
+
     return {
         "code": 0,
         "data": {
             "project": gi.project_name,
-            "version": cascadium.__version__,
-            "homepage": "https://github.com/frozflame/cascadium",
+            "version": cascadis.__version__,
+            "homepage": "https://github.com/frozflame/cascadis",
             "cache_ttl": gi.conf["cache_ttl"],
         },
     }
 
 
 @bp.route("/cas/login", methods=["GET", "POST"])
-@bp.route("/cascadium/login", methods=["GET", "POST"])
+@bp.route("/cascadis/login", methods=["GET", "POST"])
 def api_login():
     if request.method == "GET":
+        # TODO: or use joker.flasky.pages?
+        # pages.respond_login_page(**gi.conf["test_account"])
         return flask.render_template("login.html", **gi.conf["test_account"])
     LoginInterface.install_builtin_users()
     username = request.form["username"]
@@ -60,9 +63,12 @@ def api_help():
 
 
 @bp.route("/cas/files", methods=["GET", "POST"])
-@bp.route("/cascadium/files", methods=["GET", "POST"])
+@bp.route("/cascadis/files", methods=["GET", "POST"])
 @set_protection_level(2)
 def api_upload():
+    # if request.method == "GET":
+    #     return pages.respond_upload_page()
+    # chunks = read_uploading_file()
     if request.method == "GET":
         return flask.render_template("upload.html")
     chunks = _read_uploading_file_in_chunks()
@@ -86,7 +92,7 @@ def _respond_xaccel_redirect(key: str, ext: str, contenttype: str):
 
 
 @bp.route("/cas/<cname>")
-@bp.route("/cascadium/<cname>")
+@bp.route("/cascadis/<cname>")
 @set_protection_level(1)
 def api_download(cname: str):
     # TODO: support Content-Length on GET/HEAD

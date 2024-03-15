@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import dataclasses
 import urllib.parse
-from typing import Union
 
 import flask
 import requests
@@ -14,13 +13,13 @@ from flask import request, Response
 @dataclasses.dataclass
 class Proxy:
     base_url: str
-    proxy_ttl: int = 5
+    default_ttl: int = 5
 
     def get_ttl(self) -> int:
         key = 'X-Proxy-TTL'
-        return request.headers.get(key, default=self.proxy_ttl, type=int)
+        return request.headers.get(key, default=self.default_ttl, type=int)
 
-    def fetch(self, filename: str) -> Union[requests.Response, None]:
+    def fetch(self, filename: str) -> requests.Response | None:
         url = urllib.parse.urljoin(self.base_url, f'files/{filename}')
         ttl = self.get_ttl() - 1
         if not ttl:

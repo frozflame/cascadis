@@ -9,7 +9,7 @@ from joker.flasky.auth import HashedPassword
 from pymongo.errors import DuplicateKeyError
 from volkanic.errors import BusinessError
 
-from cascadium.environ import GlobalInterface
+from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
 
@@ -30,7 +30,7 @@ _builtin_users = {
         'username': 'admin',
         'password': (
             '50cbda2340ad708f307d1d9a7c084959bee68e6749651305ef44bf09c23e2888'
-            ':sha256:cascadium'
+            ':sha256:cascadis'
         )
     }
 }

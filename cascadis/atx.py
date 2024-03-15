@@ -7,8 +7,8 @@ import time
 
 from volkanic.utils import ignore_arguments
 
-from cascadium.auth import LoginInterface
-from cascadium.environ import GlobalInterface
+from cascadis.auth import LoginInterface
+from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
 

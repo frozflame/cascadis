@@ -9,6 +9,7 @@ from pathlib import Path
 
 import volkanic
 from joker.filesys.cas import ContentAddressedStorage
+from joker.redis import ErrorInterface
 from pymongo import MongoClient
 from pymongo.database import Database
 from redis import Redis
@@ -18,36 +19,34 @@ _logger = logging.getLogger(__name__)
 
 
 class GlobalInterface(volkanic.GlobalInterface):
-    package_name = 'cascadium'
+    package_name = 'cascadis'
     default_config = {
         "cache_ttl": 0,
         "proxy_ttl": 5,
-        "upstream": "",
         "mongo": {},
+        "redis": {},
         "accessibility": 1,
         "auth_tokens": [],
         "data_dir": "/data",
+        "dist_dirs": {},
+        "upstream": None,
         "use_nginx": False,
-        "test_account": {
-            "username": "",
-            "password": ""
-        }
+        "test_account": {},
     }
+
+    @cached_property
+    def cas(self) -> ContentAddressedStorage:
+        kwargs = {
+            'base_dir': self.files,
+            'dist_dirs': self.conf['dist_dirs'],
+        }
+        return ContentAddressedStorage(**kwargs)
 
     @cached_property
     def files(self) -> Path:
         path = Path(self.conf['data_dir']) / f'{self.project_name}.files'
         path.mkdir(parents=True, exist_ok=True)
         return path
-
-    @cached_property
-    def cas(self) -> ContentAddressedStorage:
-        kwargs = {
-            'base_dir': self.files,
-            'hash_algo': 'sha256',
-            'dir_depth': 2,
-        }
-        return ContentAddressedStorage(**kwargs)
 
     @cached_property
     def _mongodb_and_pid(self) -> tuple[Database, int]:
@@ -68,8 +67,12 @@ class GlobalInterface(volkanic.GlobalInterface):
         return database
 
     @cached_property
+    def error_interface(self) -> ErrorInterface:
+        return ErrorInterface(self.redis, self.project_name)
+
+    @cached_property
     def redis(self) -> Redis:
-        return Redis(**self.conf.get('redis', {}))
+        return Redis(**self.conf["redis"])
 
 
 @ignore_arguments

@@ -8,25 +8,29 @@ import time
 import traceback
 
 import flask
+
 # noinspection PyPackageRequirements
 import werkzeug.exceptions
 from flask import request
 from flask.json.provider import DefaultJSONProvider
 from joker.flasky.viewutils import (
-    json_default_strict, chain_json_default_functions,
+    json_default_strict,
+    chain_json_default_functions,
 )
 from volkanic.errors import KnownError
 from volkanic.introspect import ErrorInfo
 
-import cascadium.views
-from cascadium.environ import GlobalInterface
+import cascadis.views
+from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
 
 
 class JSONProvider(DefaultJSONProvider):
     default = chain_json_default_functions(
-        json_default_strict, DefaultJSONProvider.default, str,
+        json_default_strict,
+        DefaultJSONProvider.default,
+        str,
     )
 
 
@@ -55,16 +59,17 @@ def on_other_error(_error: Exception):
     return errinfo.to_dict()
 
 
-app.register_blueprint(cascadium.views.bp)
+# app.use_default_error_handlers(gi.error_interface)
+app.register_blueprint(cascadis.views.bp)
 
 
 def main(prog: str, args: list[str]):
     msg = (
         "For production, run with gunicorn or uwsgi:\n"
-        "gunicorn -w 8 cascadium.api:app -b 0.0.0.0:16000"
+        "gunicorn -w 8 cascadis.api:app -b 0.0.0.0:16000"
     )
     print(msg)
-    desc = "run cascadium.storage web service"
+    desc = "run cascadis web service"
     pr = argparse.ArgumentParser(prog=prog, description=desc, add_help=False)
     add = pr.add_argument
     add("--help", action="help", help="show this help message and exit")

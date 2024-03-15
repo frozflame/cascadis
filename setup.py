@@ -10,7 +10,7 @@ from setuptools import find_packages
 # Do NOT import your package from your setup.py
 
 _nsp = ''
-_pkg = 'cascadium'
+_pkg = 'cascadis'
 _desc = ''
 _names = [_nsp, _pkg]
 _names = [s for s in _names if s]
@@ -41,19 +41,19 @@ def _find_version():
 
 
 config = {
-    'name': 'cascadium',
+    'name': 'cascadis',
     'version': _find_version(),
-    'description': '' + _desc,
+    'description': 'A simple content-addressed storage service.',
     'keywords': '',
-    'url': 'https://github.com/frozflame/cascadium',
+    'url': 'https://github.com/frozflame/cascadis',
     'author': 'frozflame',
     'author_email': 'frozflame@outlook.com',
     'license': "GNU General Public License (GPL)",
-    'packages': find_packages(include=['cascadium']),
+    'packages': find_packages(include=['cascadis']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
     'entry_points': {
-        'console_scripts': ['cascadium = cascadium.__main__:registry']
+        'console_scripts': ['cascadis = cascadis.__main__:registry']
     },
     'classifiers': [
         'Programming Language :: Python',

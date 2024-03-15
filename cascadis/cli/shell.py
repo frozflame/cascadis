@@ -2,7 +2,7 @@
 # coding: utf-8
 from __future__ import annotations
 
-from cascadium.environ import GlobalInterface
+from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
 

@@ -10,12 +10,12 @@ import setuptools
 from volkanic.introspect import find_all_plain_modules
 from volkanic.utils import printerr
 
-from cascadium.environ import GlobalInterface
+from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
 
 dotpath_prefixes = [
-    'cascadium.',
+    'cascadis.',
     'tests.',
 ]
 
