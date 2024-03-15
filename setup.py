@@ -27,7 +27,8 @@ def _find_version():
     root = os.path.dirname(__file__)
     path = os.path.join(root, path)
     regex = re.compile(
-        r'''^__version__\s*=\s*('|"|'{3}|"{3})([.\w]+)\1\s*(#|$)''')
+        r'''^__version__\s*=\s*('|"|'{3}|"{3})([.\w]+)\1\s*(#|$)'''
+    )
     with open(path) as fin:
         for line in fin:
             line = line.strip()
@@ -44,14 +45,16 @@ config = {
     'version': _find_version(),
     'description': '' + _desc,
     'keywords': '',
-    'url': 'example.com',
-    'author': 'anonym',
-    'author_email': 'anonym@example.com',
+    'url': 'https://github.com/frozflame/cascadium',
+    'author': 'frozflame',
+    'author_email': 'frozflame@outlook.com',
     'license': "GNU General Public License (GPL)",
-    'packages': find_packages(include=['cascadium.*']),
+    'packages': find_packages(include=['cascadium']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
-    # 'entry_points': {'console_scripts': ['cascadium = cascadium.__main__:run']},
+    'entry_points': {
+        'console_scripts': ['cascadium = cascadium.__main__:registry']
+    },
     'classifiers': [
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
@@ -61,8 +64,8 @@ config = {
     ],
     # ensure copy static file to runtime directory
     'include_package_data': True,
-    # 'long_description': read('README.md'),
-    # 'long_description_content_type': "text/markdown",
+    'long_description': read('README.md'),
+    'long_description_content_type': "text/markdown",
 }
 
 if _nsp:
