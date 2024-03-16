@@ -49,7 +49,7 @@ class LoginInterface(metaclass=RequestBoundSingletonMeta):
         elif username := gi.conf.get('_auto_login_username'):
             return cls(username)
         else:
-            raise BusinessError('请先登录再操作', 'LoginRequired')
+            raise BusinessError('You are not logged-in', 'BE-0315')
 
     @staticmethod
     def install_builtin_users():

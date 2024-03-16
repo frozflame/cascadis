@@ -1,4 +1,5 @@
 flask~=3.0.2
+joker-cast~=0.5.2
 joker-filesys~=0.2.1
 joker-flasky~=0.6.0
 joker~=0.3.3

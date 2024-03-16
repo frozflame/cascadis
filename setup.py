@@ -53,7 +53,10 @@ config = {
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
     'entry_points': {
-        'console_scripts': ['cascadis = cascadis.__main__:registry']
+        'console_scripts': [
+            'cas = cascadis.__main__:registry',
+            'cascadis = cascadis.__main__:registry',
+        ]
     },
     'classifiers': [
         'Programming Language :: Python',

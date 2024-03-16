@@ -7,8 +7,9 @@ api     cascadis.api:main
 atx     cascadis.atx:main
 conf    cascadis.environ:main
 shell   cascadis.cli.shell:main
-reg     cascadis.cli.reg:main
 misc    cascadis.misc:main
+get     cascadis.cli.get:main
+put     cascadis.cli.put:main
 """
 
 _prog = 'python3 -m cascadis'
