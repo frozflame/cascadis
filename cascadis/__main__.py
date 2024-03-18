@@ -6,10 +6,10 @@ cmddef = """
 api     cascadis.api:main
 atx     cascadis.atx:main
 conf    cascadis.environ:main
-shell   cascadis.cli.shell:main
-misc    cascadis.misc:main
 get     cascadis.cli.get:main
+misc    cascadis.misc:main
 put     cascadis.cli.put:main
+shell   cascadis.cli.shell:main
 """
 
 _prog = 'python3 -m cascadis'

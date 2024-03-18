@@ -2,6 +2,7 @@
 # coding: utf-8
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -15,29 +16,50 @@ from cascadis.utils import find_regular_files
 gi = GlobalInterface()
 
 
-def put_file_into_cas(path):
-    with open(path, 'rb') as fin:
-        content = fin.read()
-        cid = gi.cas.save([content])
-        path = os.path.abspath(path)
-        print(cid, path)
-    register_cli_upload(cid, path)
-    return cid
+class _CommandContext:
+    def __init__(self, delete=False):
+        self.delete = delete
+
+    def put_file_into_cas(self, path):
+        with open(path, 'rb') as fin:
+            content = fin.read()
+            cid = gi.cas.save([content])
+            path = os.path.abspath(path)
+            print(cid, path)
+        register_cli_upload(cid, path)
+        if self.delete:
+            os.remove(path)
+        return cid
+
+    def put_files_in_dir_into_cas(self, dirpath):
+        executor = ThreadPoolExecutor(max_workers=10)
+        paths = find_regular_files(dirpath)
+        for batch in chunkwize(1000, paths):
+            executor.map(self.put_file_into_cas, batch)
 
 
-def put_files_in_dir_into_cas(dirpath):
-    executor = ThreadPoolExecutor(max_workers=10)
-    paths = find_regular_files(dirpath)
-    for batch in chunkwize(1000, paths):
-        executor.map(put_file_into_cas, batch)
-
-
-def main(_prog: str, args: list[str]):
-    for path in args:
+def _main(paths: list[str], delete=False):
+    cc = _CommandContext(delete=delete)
+    for path in paths:
         if os.path.isdir(path):
-            put_files_in_dir_into_cas(path)
+            cc.put_files_in_dir_into_cas(path)
         else:
-            put_file_into_cas(path)
+            cc.put_file_into_cas(path)
+
+
+def main(prog: str, args: list[str]):
+    desc = "put file into cascadis"
+    pr = argparse.ArgumentParser(prog=prog, description=desc)
+    pr.add_argument(
+        "-D", "--delete", action='store_true',
+        help="delete source files",
+    )
+    pr.add_argument(
+        "files", metavar="FILE",
+        nargs='*', help="source file",
+    )
+    ns = pr.parse_args(args)
+    _main(ns.files, delete=ns.delete)
 
 
 if __name__ == '__main__':
