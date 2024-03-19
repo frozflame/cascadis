@@ -48,14 +48,14 @@ def _main(paths: list[str], delete=False):
 
 
 def main(prog: str, args: list[str]):
-    desc = "put file into cascadis"
+    desc = "Put files into Cascadis."
     pr = argparse.ArgumentParser(prog=prog, description=desc)
     pr.add_argument(
         "-D", "--delete", action='store_true',
         help="delete source files",
     )
     pr.add_argument(
-        "files", metavar="FILE",
+        "files", metavar="path",
         nargs='*', help="source file",
     )
     ns = pr.parse_args(args)

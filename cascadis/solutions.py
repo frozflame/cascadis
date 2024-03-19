@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import datetime
+import os
 import mimetypes
 from typing import Iterable, TypedDict
 
+import subprocess
 import pymongo.errors
 from flask import request
 
@@ -59,6 +61,15 @@ class UploadRecord(TypedDict):
     filename: str | None
 
 
+def register_object(cid: str, mimetype: str):
+    coll = gi.mongodb['objects']
+    coll.update_one(
+        {'_id': cid},
+        {'$set': {'mimetype': mimetype, '_id': cid}},
+        upsert=True,
+    )
+
+
 def register_http_upload(cid: str):
     coll = gi.mongodb['uploads']
     fup = request.files.get('file')
@@ -70,15 +81,43 @@ def register_http_upload(cid: str):
         'filename': fup.filename,
     }
     coll.insert_one(record)
+    register_object(cid, fup.mimetype)
 
 
 def register_cli_upload(cid: str, filename: str):
     coll = gi.mongodb['uploads']
+    mimetype = mimetypes.guess_type(filename)[0]
     record: UploadRecord = {
         'cid': cid,
         'method': 'cli',
-        'username': 'admin',
-        'mimetype': mimetypes.guess_type(filename)[0],
+        'username': os.getlogin(),
+        'mimetype': mimetype,
         'filename': filename,
     }
     coll.insert_one(record)
+    if mimetype:
+        register_object(cid, mimetype)
+
+
+def infer_mimetype_from_upload(cid: str) -> str:
+    coll = gi.mongodb['uploads']
+    record = coll.find_one(
+        {'cid': cid}, sort=[('_id', -1)],
+        projection=['mimetype'],
+    )
+    if record:
+        return record['mimetype']
+
+
+def infer_mimetype_with_file_command(cid: str) -> str:
+    path = gi.cas.locate(cid)
+    cmd = ['file', '--mime-type', str(path)]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    return proc.stdout.split()[-1]
+
+
+# def update_
+
+if __name__ == '__main__':
+    print(infer_mimetype_with_file_command('3543069d447f8ef042b5f0500e36a9b787f9288a064dd38905f4147169f9c476'))
+    print(infer_mimetype_from_upload('3543069d447f8ef042b5f0500e36a9b787f9288a064dd38905f4147169f9c476'))
