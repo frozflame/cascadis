@@ -24,12 +24,12 @@ class _CommandContext:
         os.makedirs(dir_, exist_ok=True)
         exists = os.path.exists(path)
         if not self.overwrite and exists:
-            print(cid, 'SKIPPED', path)
+            print(cid, "SKIPPED", path)
             return
-        with open(path, 'wb') as fout:
+        with open(path, "wb") as fout:
             for chunk in gi.cas.load(cid):
                 fout.write(chunk)
-        action = 'OVERWRITTEN' if exists else 'CREATED'
+        action = "OVERWRITTEN" if exists else "CREATED"
         print(cid, action, path)
 
     def _get_file_from_cas_with_one_arg(self, pair: tuple[str, str]):
@@ -42,25 +42,29 @@ class _CommandContext:
 
 
 def main(_prog: str, args: list[str]):
-    desc = 'Get files from Cascadis.'
+    desc = "Get files from Cascadis."
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument(
-        '-O', '--overwrite', action='store_true',
-        help='overwrite existing files',
+        "-O",
+        "--overwrite",
+        action="store_true",
+        help="overwrite existing files",
     )
-    parser.add_argument('cid', help='content identifier')
-    parser.add_argument('path', help='file to be created')
+    parser.add_argument("cid", help="content identifier")
+    parser.add_argument("path", help="file to be created")
     parser.add_argument(
-        'more', nargs='*', default=[],
-        help='more cid and path pairs',
+        "more",
+        nargs="*",
+        default=[],
+        help="more cid and path pairs",
     )
     ns = parser.parse_args(args)
     if len(ns.more) % 2:
-        printerr('error: wrong number of arguments')
+        printerr("error: wrong number of arguments")
         sys.exit(1)
     pairs = chunkwize(2, [ns.cid, ns.path] + ns.more)
     _CommandContext(ns.overwrite).get_files_from_cas(list(pairs))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[0], sys.argv[1:])

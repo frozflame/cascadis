@@ -91,8 +91,8 @@ def _respond_xaccel_redirect(key: str, ext: str, contenttype: str):
     return resp
 
 
-@bp.route("/cas/<cname>")
-@bp.route("/cascadis/<cname>")
+@bp.route("/cas/files/<cname>")
+@bp.route("/cascadis/files/<cname>")
 @set_protection_level(1)
 def api_download(cname: str):
     # TODO: support Content-Length on GET/HEAD

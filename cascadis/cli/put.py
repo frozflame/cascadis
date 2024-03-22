@@ -21,7 +21,7 @@ class _CommandContext:
         self.delete = delete
 
     def put_file_into_cas(self, path):
-        with open(path, 'rb') as fin:
+        with open(path, "rb") as fin:
             content = fin.read()
             cid = gi.cas.save([content])
             path = os.path.abspath(path)
@@ -51,16 +51,20 @@ def main(prog: str, args: list[str]):
     desc = "Put files into Cascadis."
     pr = argparse.ArgumentParser(prog=prog, description=desc)
     pr.add_argument(
-        "-D", "--delete", action='store_true',
+        "-D",
+        "--delete",
+        action="store_true",
         help="delete source files",
     )
     pr.add_argument(
-        "files", metavar="path",
-        nargs='*', help="source file",
+        "files",
+        metavar="path",
+        nargs="*",
+        help="source file",
     )
     ns = pr.parse_args(args)
     _main(ns.files, delete=ns.delete)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[0], sys.argv[1:])

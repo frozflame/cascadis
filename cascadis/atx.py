@@ -14,7 +14,7 @@ gi = GlobalInterface()
 
 
 def remove_legacy_files():
-    ttl = gi.conf['cache_ttl']
+    ttl = gi.conf["cache_ttl"]
     if not ttl:
         return
     now = time.time()

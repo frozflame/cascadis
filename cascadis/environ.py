@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 
 
 class GlobalInterface(volkanic.GlobalInterface):
-    package_name = 'cascadis'
+    package_name = "cascadis"
     default_config = {
         "cache_ttl": 0,
         "proxy_ttl": 5,
@@ -37,23 +37,23 @@ class GlobalInterface(volkanic.GlobalInterface):
     @cached_property
     def cas(self) -> ContentAddressedStorage:
         kwargs = {
-            'base_dir': self.files,
-            'dist_dirs': self.conf['dist_dirs'],
+            "base_dir": self.files,
+            "dist_dirs": self.conf["dist_dirs"],
         }
         return ContentAddressedStorage(**kwargs)
 
     @cached_property
     def files(self) -> Path:
-        path = Path(self.conf['data_dir']) / f'{self.project_name}.files'
+        path = Path(self.conf["data_dir"]) / f"{self.project_name}.files"
         path.mkdir(parents=True, exist_ok=True)
         return path
 
     @cached_property
     def _mongodb_and_pid(self) -> tuple[Database, int]:
-        cfg = self.conf['mongo']
+        cfg = self.conf["mongo"]
         cfg = cfg.copy()
-        cfg.setdefault('directConnection', True)
-        _logger.info('using mongo cfg %s', cfg)
+        cfg.setdefault("directConnection", True)
+        _logger.info("using mongo cfg %s", cfg)
         client = MongoClient(**cfg)
         return client.get_database(self.identifier), os.getpid()
 
@@ -62,7 +62,7 @@ class GlobalInterface(volkanic.GlobalInterface):
         database, pid = self._mongodb_and_pid
         # for a new process, create a new MongoClient instance
         if pid != os.getpid():
-            self.__dict__.pop('_mongodb_and_pid')
+            self.__dict__.pop("_mongodb_and_pid")
             database = self._mongodb_and_pid[0]
         return database
 
@@ -79,4 +79,4 @@ class GlobalInterface(volkanic.GlobalInterface):
 def main():
     gi = GlobalInterface()
     indented_json_print(gi.conf)
-    print('files:', gi.files)
+    print("files:", gi.files)
