@@ -49,7 +49,7 @@ config = {
     'author': 'frozflame',
     'author_email': 'frozflame@outlook.com',
     'license': "GNU General Public License (GPL)",
-    'packages': find_packages(include=['cascadis']),
+    'packages': find_packages(include=['cascadis', 'cascadis.*']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
     'entry_points': {
@@ -64,6 +64,7 @@ config = {
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
     # ensure copy static file to runtime directory
     'include_package_data': True,
