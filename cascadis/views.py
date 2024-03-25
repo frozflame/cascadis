@@ -55,13 +55,6 @@ def api_login():
     return {"code": 0, "data": li.userinfo}
 
 
-@bp.route("/help")
-@set_protection_level(2)
-@login_required
-def api_help():
-    return "help"
-
-
 @bp.route("/cas/files", methods=["GET", "POST"])
 @bp.route("/cascadis/files", methods=["GET", "POST"])
 @set_protection_level(2)
