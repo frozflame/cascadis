@@ -1,7 +1,9 @@
 Cascadis
 =========
 
-A simple content-addressed storage service.
+A content-addressed storage service.
+
+This project is currently at experimental stage.
 
 Install with `pip`:
 

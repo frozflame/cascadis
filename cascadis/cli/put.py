@@ -20,15 +20,21 @@ class _CommandContext:
     def __init__(self, delete=False):
         self.delete = delete
 
-    def put_file_into_cas(self, path):
+    def _put_file_into_cas(self, path: str):
+        if self.delete and os.stat(path).st_dev == os.stat(gi.files).st_dev:
+            return gi.cas.seize(path)
         with open(path, "rb") as fin:
             content = fin.read()
             cid = gi.cas.save([content])
-            path = os.path.abspath(path)
-            print(cid, path)
-        register_cli_upload(cid, path)
         if self.delete:
             os.remove(path)
+        return cid
+
+    def put_file_into_cas(self, path: str):
+        path = os.path.abspath(path)
+        cid = self._put_file_into_cas(path)
+        print(cid, path)
+        register_cli_upload(cid, path)
         return cid
 
     def put_files_in_dir_into_cas(self, dirpath):

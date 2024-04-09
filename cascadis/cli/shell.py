@@ -2,15 +2,19 @@
 # coding: utf-8
 from __future__ import annotations
 
+import sys
+
 from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
 
 
 def main(_prog, _args):
-    try:
-        from IPython import start_ipython
+    from IPython import start_ipython
 
-        start_ipython([], user_ns=globals())
-    except ImportError:
-        pass
+    gi.setup_logging('INFO')
+    start_ipython([], user_ns=globals())
+
+
+if __name__ == "__main__":
+    main(sys.argv[0], sys.argv[1:])

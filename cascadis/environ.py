@@ -8,12 +8,13 @@ from functools import cached_property
 from pathlib import Path
 
 import volkanic
-from joker.filesys.cas import ContentAddressedStorage
 from joker.redis import ErrorInterface
 from pymongo import MongoClient
 from pymongo.database import Database
 from redis import Redis
 from volkanic.utils import ignore_arguments, indented_json_print
+
+from cascadis.cas import ContentAddressedStorage
 
 _logger = logging.getLogger(__name__)
 
