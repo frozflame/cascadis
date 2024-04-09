@@ -9,10 +9,13 @@ import os.path
 import flask
 from flask import Blueprint, request, Response
 
-from cascadis.auth import set_protection_level, LoginInterface, login_required
+from cascadis.auth import set_protection_level, LoginInterface
 from cascadis.environ import GlobalInterface
 from cascadis.solutions import register_http_upload
-from cascadis.viewutils import Proxy, fmt_content_disposition_attachment
+from cascadis.solutions.sessions import Session
+from cascadis.viewutils import (
+    Proxy, fmt_content_disposition
+)
 
 gi = GlobalInterface()
 bp = Blueprint("cas", __name__)
@@ -86,6 +89,8 @@ def _respond_xaccel_redirect(key: str, ext: str, contenttype: str):
 
 @bp.route("/cas/files/<cname>")
 @bp.route("/cascadis/files/<cname>")
+@bp.route("/cas/c/<cname>")
+@bp.route("/cascadis/content/<cname>")
 @set_protection_level(1)
 def api_download(cname: str):
     # TODO: support Content-Length on GET/HEAD
@@ -112,6 +117,18 @@ def api_download(cname: str):
     if mimetype == default_mimetype:
         resp.headers["Content-Disposition"] = "inline"
     elif filename != cname:
-        content_dispos = fmt_content_disposition_attachment(filename)
+        content_dispos = fmt_content_disposition(filename, attachment=True)
         resp.headers["Content-Disposition"] = content_dispos
     return resp
+
+
+@bp.route("/cas/s/<session_id>")
+@bp.route("/cascadis/session/<session_id>")
+def view_public(session_id):
+    try:
+        session = Session.load(session_id)
+    except FileNotFoundError:
+        return flask.abort(404)
+    chunks = gi.cas.load(session.cid)
+    print(session, "----")
+    return Response(chunks, content_type=session.content_type)

@@ -3,17 +3,23 @@
 from __future__ import annotations
 
 import datetime
-import os
+import logging
 import mimetypes
+import os
 from typing import Iterable, TypedDict
 
-import subprocess
 import pymongo.errors
 from flask import request
 
 from cascadis.environ import GlobalInterface
+from cascadis.solutions.inference import get_or_infer_content_type
+from cascadis.solutions.legacy import (
+    infer_mimetype_from_upload,
+    infer_mimetype_with_file_command,
+)
 
 gi = GlobalInterface()
+_logger = logging.getLogger(__name__)
 
 
 def query_by_file_id(file_id):
@@ -99,26 +105,6 @@ def register_cli_upload(cid: str, filename: str):
     if mimetype:
         register_object(cid, mimetype)
 
-
-def infer_mimetype_from_upload(cid: str) -> str:
-    coll = gi.mongodb["uploads"]
-    record = coll.find_one(
-        {"cid": cid},
-        sort=[("_id", -1)],
-        projection=["mimetype"],
-    )
-    if record:
-        return record["mimetype"]
-
-
-def infer_mimetype_with_file_command(cid: str) -> str:
-    path = gi.cas.locate(cid)
-    cmd = ["file", "--mime-type", str(path)]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    return proc.stdout.split()[-1]
-
-
-# def update_
 
 if __name__ == "__main__":
     print(
