@@ -42,6 +42,11 @@ class Proxy:
         return ret_resp
 
 
-def fmt_content_disposition_attachment(filename: str):
+def fmt_content_disposition(filename: str, attachment=False) -> str:
     quoted = urllib.parse.quote(filename)
-    return f'''attachment; filename="{quoted}"; filename*="UTF-8''{quoted}"'''
+    kind = "attachment" if attachment else "inline"
+    return f'''{kind}; filename="{quoted}"; filename*="UTF-8''{quoted}"'''
+
+
+def fmt_content_disposition_attachment(filename: str) -> str:
+    return fmt_content_disposition(filename, attachment=True)
