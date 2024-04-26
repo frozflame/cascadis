@@ -13,9 +13,7 @@ from cascadis.auth import set_protection_level, LoginInterface
 from cascadis.environ import GlobalInterface
 from cascadis.solutions import register_http_upload
 from cascadis.solutions.sessions import Session
-from cascadis.viewutils import (
-    Proxy, fmt_content_disposition
-)
+from cascadis.viewutils import Proxy, fmt_content_disposition
 
 gi = GlobalInterface()
 bp = Blueprint("cas", __name__)
@@ -76,9 +74,9 @@ def api_upload():
 def _respond_xaccel_redirect(key: str, ext: str, contenttype: str):
     # nginx: http://wiki.nginx.org/NginxXSendfile
     resp = flask.make_response()
-    rel_path = gi.cas.locate(key).relative_to(gi.files)
+    path = gi.cas.locate(key)
     headers = {
-        "X-Accel-Redirect": str(rel_path),
+        "X-Accel-Redirect": f"/internal/{path}",
         "Cache-Control": "no-cache",
         "Content-Type": contenttype,
         "Content-Disposition": f"attachment; filename={key}{ext}",
@@ -117,8 +115,8 @@ def api_download(cname: str):
     if mimetype == default_mimetype:
         resp.headers["Content-Disposition"] = "inline"
     elif filename != cname:
-        content_dispos = fmt_content_disposition(filename, attachment=True)
-        resp.headers["Content-Disposition"] = content_dispos
+        disposition = fmt_content_disposition(filename)
+        resp.headers["Content-Disposition"] = disposition
     return resp
 
 

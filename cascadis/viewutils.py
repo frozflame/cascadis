@@ -46,7 +46,3 @@ def fmt_content_disposition(filename: str, attachment=False) -> str:
     quoted = urllib.parse.quote(filename)
     kind = "attachment" if attachment else "inline"
     return f'''{kind}; filename="{quoted}"; filename*="UTF-8''{quoted}"'''
-
-
-def fmt_content_disposition_attachment(filename: str) -> str:
-    return fmt_content_disposition(filename, attachment=True)
