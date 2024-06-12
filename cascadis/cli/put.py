@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -16,12 +17,14 @@ from cascadis.utils import find_regular_files
 gi = GlobalInterface()
 
 
+@dataclasses.dataclass
 class _CommandContext:
-    def __init__(self, delete=False):
-        self.delete = delete
+    delete: bool = False
+    concurrency: int = 1
 
     def _put_file_into_cas(self, path: str):
-        if self.delete and os.stat(path).st_dev == os.stat(gi.files).st_dev:
+        # TODO: check gi.dirs existence
+        if self.delete and os.stat(path).st_dev == os.stat(gi.dirs[0]).st_dev:
             return gi.cas.seize(path)
         with open(path, "rb") as fin:
             content = fin.read()
@@ -38,10 +41,21 @@ class _CommandContext:
         return cid
 
     def put_files_in_dir_into_cas(self, dirpath):
-        executor = ThreadPoolExecutor(max_workers=10)
         paths = find_regular_files(dirpath)
-        for batch in chunkwize(1000, paths):
-            executor.map(self.put_file_into_cas, batch)
+        if self.concurrency == 1:
+            for path in paths:
+                self.put_file_into_cas(path)
+        else:
+            executor = ThreadPoolExecutor(max_workers=self.concurrency)
+            for batch in chunkwize(1000, paths):
+                executor.map(self.put_file_into_cas, batch)
+
+    def run(self, paths: list[str]):
+        for path in paths:
+            if os.path.isdir(path):
+                self.put_files_in_dir_into_cas(path)
+            else:
+                self.put_file_into_cas(path)
 
 
 def _main(paths: list[str], delete=False):
@@ -55,21 +69,28 @@ def _main(paths: list[str], delete=False):
 
 def main(prog: str, args: list[str]):
     desc = "Put files into Cascadis."
-    pr = argparse.ArgumentParser(prog=prog, description=desc)
-    pr.add_argument(
+    ap = argparse.ArgumentParser(prog=prog, description=desc)
+    ap.add_argument(
+        "-c",
+        "--concurrency",
+        type=int,
+        help="number of threads",
+    )
+    ap.add_argument(
         "-D",
         "--delete",
         action="store_true",
         help="delete source files",
     )
-    pr.add_argument(
+    ap.add_argument(
         "files",
         metavar="path",
         nargs="*",
         help="source file",
     )
-    ns = pr.parse_args(args)
-    _main(ns.files, delete=ns.delete)
+    ns = ap.parse_args(args)
+    cc = _CommandContext(delete=ns.delete, concurrency=ns.concurrency)
+    cc.run(ns.files)
 
 
 if __name__ == "__main__":

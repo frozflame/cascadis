@@ -76,10 +76,11 @@ def _respond_xaccel_redirect(key: str, ext: str, contenttype: str):
     resp = flask.make_response()
     path = gi.cas.locate(key)
     headers = {
-        "X-Accel-Redirect": f"/internal/{path}",
+        # path is absolute; f"/internal/{path}" will lead to 404
+        "X-Accel-Redirect": f"/internal{path}",
         "Cache-Control": "no-cache",
         "Content-Type": contenttype,
-        "Content-Disposition": f"attachment; filename={key}{ext}",
+        "Content-Disposition": f"inline; filename={key}{ext}",
     }
     resp.headers.update(headers)
     return resp

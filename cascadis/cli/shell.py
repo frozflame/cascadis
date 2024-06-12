@@ -12,7 +12,7 @@ gi = GlobalInterface()
 def main(_prog, _args):
     from IPython import start_ipython
 
-    gi.setup_logging('INFO')
+    gi.setup_logging("INFO")
     start_ipython([], user_ns=globals())
 
 

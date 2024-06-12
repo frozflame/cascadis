@@ -6,48 +6,59 @@ import logging
 import os
 from functools import cached_property
 from pathlib import Path
+from typing import TypedDict
 
 import volkanic
+from joker.filesys.cas import ContentAddressedStorage
 from joker.redis import ErrorInterface
 from pymongo import MongoClient
 from pymongo.database import Database
 from redis import Redis
 from volkanic.utils import ignore_arguments, indented_json_print
 
-from cascadis.cas import ContentAddressedStorage
-
 _logger = logging.getLogger(__name__)
+
+
+class ConfDict(TypedDict):
+    cache_ttl: int
+    proxy_ttl: int
+    mongo: dict
+    redis: dict
+    accessibility: int
+    data_dirs: list[str]
+    upstream: str
+    use_nginx: bool
+    test_account: dict
 
 
 class GlobalInterface(volkanic.GlobalInterface):
     package_name = "cascadis"
-    default_config = {
+    conf: ConfDict
+    default_config: ConfDict = {
         "cache_ttl": 0,
         "proxy_ttl": 5,
         "mongo": {},
         "redis": {},
         "accessibility": 1,
-        "auth_tokens": [],
-        "data_dir": "/data",
-        "dist_dirs": {},
+        "data_dirs": ["/data"],
         "upstream": None,
         "use_nginx": False,
         "test_account": {},
     }
 
     @cached_property
-    def cas(self) -> ContentAddressedStorage:
-        kwargs = {
-            "base_dir": self.files,
-            "dist_dirs": self.conf["dist_dirs"],
-        }
-        return ContentAddressedStorage(**kwargs)
+    def dirs(self) -> list[Path]:
+        dirname = f"{self.project_name}.files"
+        paths = []
+        for data_dir in self.conf["data_dirs"]:
+            path = Path(data_dir) / dirname
+            path.mkdir(parents=True, exist_ok=True)
+            paths.append(path)
+        return paths
 
     @cached_property
-    def files(self) -> Path:
-        path = Path(self.conf["data_dir"]) / f"{self.project_name}.files"
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+    def cas(self) -> ContentAddressedStorage:
+        return ContentAddressedStorage(base_dirs=self.dirs)
 
     @cached_property
     def _mongodb_and_pid(self) -> tuple[Database, int]:
@@ -80,4 +91,5 @@ class GlobalInterface(volkanic.GlobalInterface):
 def main():
     gi = GlobalInterface()
     indented_json_print(gi.conf)
-    print("files:", gi.files)
+    for path in gi.dirs:
+        print(path)
