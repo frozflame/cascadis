@@ -129,5 +129,4 @@ def view_public(session_id):
     except FileNotFoundError:
         return flask.abort(404)
     chunks = gi.cas.load(session.cid)
-    print(session, "----")
     return Response(chunks, content_type=session.content_type)
