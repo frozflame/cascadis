@@ -24,7 +24,6 @@ class ConfDict(TypedDict):
     proxy_ttl: int
     mongo: dict
     redis: dict
-    accessibility: int
     data_dirs: list[str]
     upstream: str
     use_nginx: bool
@@ -39,7 +38,6 @@ class GlobalInterface(volkanic.GlobalInterface):
         "proxy_ttl": 5,
         "mongo": {},
         "redis": {},
-        "accessibility": 1,
         "data_dirs": ["/data"],
         "upstream": None,
         "use_nginx": False,

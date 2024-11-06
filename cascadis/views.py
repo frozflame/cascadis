@@ -9,7 +9,6 @@ import os.path
 import flask
 from flask import Blueprint, request, Response
 
-from cascadis.auth import set_protection_level, LoginInterface
 from cascadis.environ import GlobalInterface
 from cascadis.solutions import register_http_upload
 from cascadis.solutions.sessions import Session
@@ -27,7 +26,6 @@ def _read_uploading_file_in_chunks(chunksize=16384):
 
 
 @bp.route("/")
-@set_protection_level(1)
 def api_index():
     import cascadis
 
@@ -45,20 +43,17 @@ def api_index():
 @bp.route("/cas/login", methods=["GET", "POST"])
 @bp.route("/cascadis/login", methods=["GET", "POST"])
 def api_login():
+    # TODO:
     if request.method == "GET":
         # TODO: or use joker.flasky.pages?
         # pages.respond_login_page(**gi.conf["test_account"])
         return flask.render_template("login.html", **gi.conf["test_account"])
-    LoginInterface.install_builtin_users()
-    username = request.form["username"]
-    password = request.form["password"]
-    li = LoginInterface.login(username, password)
-    return {"code": 0, "data": li.userinfo}
+    userinfo = {"username": "any", "nickname": "any", "email": "any@example.com"}
+    return {"code": 0, "data": userinfo}
 
 
 @bp.route("/cas/files", methods=["GET", "POST"])
 @bp.route("/cascadis/files", methods=["GET", "POST"])
-@set_protection_level(2)
 def api_upload():
     # if request.method == "GET":
     #     return pages.respond_upload_page()
@@ -90,7 +85,6 @@ def _respond_xaccel_redirect(key: str, ext: str, contenttype: str):
 @bp.route("/cascadis/files/<cname>")
 @bp.route("/cas/c/<cname>")
 @bp.route("/cascadis/content/<cname>")
-@set_protection_level(1)
 def api_download(cname: str):
     # TODO: support Content-Length on GET/HEAD
     # TODO: use HEAD method on HEAD proxy

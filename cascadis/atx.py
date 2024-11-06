@@ -7,7 +7,6 @@ import time
 
 from volkanic.utils import ignore_arguments
 
-from cascadis.auth import LoginInterface
 from cascadis.environ import GlobalInterface
 
 gi = GlobalInterface()
@@ -26,7 +25,6 @@ def remove_legacy_files():
 
 @ignore_arguments
 def main():
-    LoginInterface.install_builtin_users()
     while True:
         time.sleep(3600)
         remove_legacy_files()
